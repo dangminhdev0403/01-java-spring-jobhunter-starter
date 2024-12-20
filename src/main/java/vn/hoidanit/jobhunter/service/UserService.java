@@ -1,5 +1,7 @@
 package vn.hoidanit.jobhunter.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.User;
@@ -32,5 +34,12 @@ public class UserService {
         userInDb.setPassword(user.getPassword());
 
         return userRepository.save(user);
+    }
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
