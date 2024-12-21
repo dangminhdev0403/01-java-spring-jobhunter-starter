@@ -1,6 +1,7 @@
 package vn.hoidanit.jobhunter.config;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -19,12 +20,11 @@ import vn.hoidanit.jobhunter.domain.RestResponse;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private final AuthenticationEntryPoint delegate = new BearerTokenAuthenticationEntryPoint();
 
-    private final ObjectMapper objectMapper ;
+    private final ObjectMapper objectMapper;
 
     public CustomAuthenticationEntryPoint(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
-
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -33,7 +33,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json;charset=UTF-8");
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatus(HttpStatus.UNAUTHORIZED.value());
-        res.setError(authException.getCause().getMessage());
+        String errorMessage = Optional.ofNullable(authException.getCause())
+                .map(Throwable::getMessage).orElse(authException.getMessage());
+
+        res.setError(errorMessage);
         res.setMessage("Unauthorized");
 
         objectMapper.writeValue(response.getWriter(), res);
